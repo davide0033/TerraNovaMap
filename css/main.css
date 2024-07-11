@@ -1,0 +1,49 @@
+body {
+  padding: 0;
+  margin: 0;
+  background-color: rgb(52, 48, 48);
+}
+#map {
+  position: relative;
+  height: 100%;
+  width: 100vw;
+  background-color: rgb(50, 49, 47);
+}
+
+#IGN {
+  position: relative;
+  margin: 0 auto;
+  clear: left;
+  height: auto;
+  width: auto;
+  z-index: 9999;
+  text-align: center;
+  background-color: #ffffff;
+  font-size: 18pt;
+}
+
+#status {
+  position: fixed;
+  padding: 6px;
+  top: 0px;
+  right: 0px;
+  height: auto;
+  width: auto;
+  z-index: 9999;
+  text-align: center;
+  background-color: #ffffff;
+  font-size: 14pt;
+}
+
+#speed {
+  position: fixed;
+  padding: 4px;
+  bottom: 0px;
+  left: 0px;
+  height: auto;
+  width: auto;
+  z-index: 9999;
+  text-align: center;
+  background-color: #ffffff;
+  font-size: 10pt;
+}

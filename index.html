@@ -1,0 +1,167 @@
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      http-equiv="content-type"
+      content="text/html; charset=utf-8"
+      lang="en"
+    />
+    <meta content="EMC Terra Nova map replacemen" property="og:title" />
+    <meta
+      content="EarthMC Terra Nova map replacement"
+      property="og:description"
+    />
+    
+
+    <link rel="stylesheet" href="css/main.css" />
+    <script src="js/leaflet.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-latest.js"
+    ></script>
+    <title>EMC Terra Nova map replacement</title>
+  </head>
+  <body>
+    <div id="map">
+     
+    </div>
+    <script>
+     /* const xCoords = [13920.00,13936.00,13936.00,13952.00,13952.00,13936.00,13936.00,13952.00,13952.00,13984.00,13984.00,14048.00,14048.00,14064.00,14064.00,14096.00,14096.00,14032.00,14032.00,14016.00,14016.00,14240.00,14240.00,14224.00,14224.00,14240.00,14240.00,14256.00,14256.00,14272.00,14272.00,14288.00,14288.00,14272.00,14272.00,14256.00,14256.00,14208.00,14208.00,14096.00,14096.00,14080.00,14080.00,14064.00,14064.00,14032.00,14032.00,14016.00,14016.00,14000.00,14000.00,13968.00,13968.00,13920.00]
+      const yCoords = [-8160.00,-8160.00,-8192.00,-8192.00,-8224.00,-8224.00,-8256.00,-8256.00,-8272.00,-8272.00,-8304.00,-8304.00,-8352.00,-8352.00,-8384.00,-8384.00,-8400.00,-8400.00,-8416.00,-8416.00,-8608.00,-8608.00,-8416.00,-8416.00,-8352.00,-8352.00,-8336.00,-8336.00,-8352.00,-8352.00,-8320.00,-8320.00,-8256.00,-8256.00,-8208.00,-8208.00,-8192.00,-8192.00,-8176.00,-8176.00,-8160.00,-8160.00,-8144.00,-8144.00,-8160.00,-8160.00,-8144.00,-8144.00,-8128.00,-8128.00,-8112.00,-8112.00,-8128.00,-8128.00]
+
+      const xCoords2 = [14400.00,14448.00,14448.00,14432.00,14432.00,14448.00,14448.00,14496.00,14496.00,14576.00,14576.00,14592.00,14592.00,14496.00,14496.00,14480.00,14480.00,14416.00,14416.00,14400.00]
+      const yCoords2 = [-8416.00,-8416.00,-8432.00,-8432.00,-8448.00,-8448.00,-8464.00,-8464.00,-8480.00,-8480.00,-8464.00,-8464.00,-8384.00,-8384.00,-8368.00,-8368.00,-8384.00,-8384.00,-8400.00,-8400.00]
+
+      const coords = xCoords.map((x, index) => [x, -yCoords[index]-64]) 
+      const coords2 = xCoords2.map((x, index) => [x, -yCoords2[index]-64]) 
+      
+*/
+      var emcmap = L.map("map", {
+        crs: L.CRS.Simple,
+      }).setView([0, 0], -3);
+
+
+/*var FeatureCollection =   { "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+       "properties": {"color": "#FFBB00", "fillColor":"#FFBB00"},
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [coords]
+          },
+      },
+      { 
+        "type": "Feature",
+        "properties": {"color": "#3FB4FF", "fillColor":"#3FB4FF"},
+         "geometry": {
+           "type": "Polygon",
+           "coordinates": [coords2]
+         },
+      }
+       ]
+     }
+*/
+    const geoJsonFeatures = []
+async function FetchMap(){
+  const response = await fetch("https://earthmc.net/map/nova/standalone/MySQL_markers.php?marker=_markers_/marker_earth.json")
+if(response.status !== 200){ 
+  return console.log("Error: status code" + response.status)
+  
+}
+const data = await response.json()
+console.log(data)
+  const areas = data.sets['townyPlugin.markerset'].areas
+
+  for (const areaID in areas){
+    const area = areas[areaID]
+    const coords = area.x.map((x, index) => [x, -area.z[index]-64]) 
+
+    const feature = {
+        "type": "Feature",
+       "properties": {"color": area.color, "fillColor":area.fillcolor},
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [coords]
+          },
+      }
+      geoJsonFeatures.push(feature)
+  }
+}
+FetchMap().then(( ) => {
+  console.log(geoJsonFeatures)
+
+var FeatureCollection =   { "type": "FeatureCollection", "features": geoJsonFeatures }
+  console.log(FeatureCollection)
+L.geoJson(FeatureCollection, { style: function(feature){
+  return {color: feature.properties.color, fillColor:feature.properties.color, opacity:0.65, weight:1}
+}}).addTo(emcmap)
+      
+})
+
+
+      
+
+
+      // EMC background tiles
+      L.tileLayer(
+        "https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/zzzzz_{x1}_{y1}.png",
+        {
+          maxZoom: -4,
+          minZoom: -4,
+          tileSize: 128,
+        }
+      ).addTo(emcmap);
+      L.tileLayer(
+        "https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/zzzz_{x2}_{y2}.png",
+        {
+          maxZoom: -3,
+          minZoom: -3,
+          tileSize: 128,
+        }
+      ).addTo(emcmap);
+      L.tileLayer(
+        "https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/zzz_{x3}_{y3}.png",
+        {
+          maxZoom: -2,
+          minZoom: -2,
+          tileSize: 128,
+        }
+      ).addTo(emcmap);
+      L.tileLayer(
+        "https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/zz_{x4}_{y4}.png",
+        {
+          maxZoom: -1,
+          minZoom: -1,
+          tileSize: 128,
+        }
+      ).addTo(emcmap);
+      L.tileLayer(
+        "https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/z_{x5}_{y5}.png",
+        {
+          maxZoom: 0,
+          minZoom: 0,
+          tileSize: 128,
+        }
+      ).addTo(emcmap);
+      L.tileLayer("https://earthmc.net/map/nova/standalone/MySQL_tiles.php?tile=earth/flat/0_0/{x}_{y6}.png", {
+        maxZoom: 2,
+        maxNativeZoom: 1,
+        minZoom: 1,
+        tileSize: 128,
+      }).addTo(emcmap);
+    </script>
+    <script type="text/javascript" src="js/main.js"></script>
+  </body>
+</html>
