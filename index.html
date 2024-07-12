@@ -49,7 +49,7 @@
 
     const geoJsonFeatures = []
 async function FetchMap(){
-  const response = await fetch("../assets/markers_earth.json")
+  const response = await fetch("./assets/markers_earth.json")
 if(response.status !== 200){ 
   return console.log("Error: status code" + response.status)
   
@@ -118,7 +118,7 @@ $("#Toggle").click(function(){
 let IRLlayer
   const IRLCountries = []
 async function FetchIRL(){
-  const response = await fetch("https://earthmc.net/map/nova/standalone/MySQL_markers.php?marker=_markers_/marker_earth.json")
+  const response = await fetch("./assets/markers_earth.json")
 if(response.status !== 200){ 
   return console.log("Error: status code" + response.status)
   
