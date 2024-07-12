@@ -10,16 +10,31 @@ body {
   background-color: rgb(50, 49, 47);
 }
 
-#IGN {
-  position: relative;
-  margin: 0 auto;
+#Toggle {
+  position: absolute;
+  margin-top: 100px;
   clear: left;
   height: auto;
   width: auto;
-  z-index: 9999;
+  z-index: 800;
   text-align: center;
   background-color: #ffffff;
-  font-size: 18pt;
+  border: #ffffff;
+  border-radius: 5px;
+  font-size: 15pt;
+}
+#IRLtoggle {
+  position: absolute;
+  margin-top: 150px;
+  clear: left;
+  height: auto;
+  width: auto;
+  z-index: 800;
+  text-align: center;
+  background-color: #ffffff;
+  border: #ffffff;
+  border-radius: 5px;
+  font-size: 15pt;
 }
 
 #status {

@@ -33,49 +33,23 @@
     <title>EMC Terra Nova map replacement</title>
   </head>
   <body>
+    
+    
+    
     <div id="map">
-     
+      <button id="Toggle" class="Toggle">Toggle Towny borders</button>
+      <button id="IRLtoggle" class="Toggle">Toggle countries borders</button>
     </div>
     <script>
-     /* const xCoords = [13920.00,13936.00,13936.00,13952.00,13952.00,13936.00,13936.00,13952.00,13952.00,13984.00,13984.00,14048.00,14048.00,14064.00,14064.00,14096.00,14096.00,14032.00,14032.00,14016.00,14016.00,14240.00,14240.00,14224.00,14224.00,14240.00,14240.00,14256.00,14256.00,14272.00,14272.00,14288.00,14288.00,14272.00,14272.00,14256.00,14256.00,14208.00,14208.00,14096.00,14096.00,14080.00,14080.00,14064.00,14064.00,14032.00,14032.00,14016.00,14016.00,14000.00,14000.00,13968.00,13968.00,13920.00]
-      const yCoords = [-8160.00,-8160.00,-8192.00,-8192.00,-8224.00,-8224.00,-8256.00,-8256.00,-8272.00,-8272.00,-8304.00,-8304.00,-8352.00,-8352.00,-8384.00,-8384.00,-8400.00,-8400.00,-8416.00,-8416.00,-8608.00,-8608.00,-8416.00,-8416.00,-8352.00,-8352.00,-8336.00,-8336.00,-8352.00,-8352.00,-8320.00,-8320.00,-8256.00,-8256.00,-8208.00,-8208.00,-8192.00,-8192.00,-8176.00,-8176.00,-8160.00,-8160.00,-8144.00,-8144.00,-8160.00,-8160.00,-8144.00,-8144.00,-8128.00,-8128.00,-8112.00,-8112.00,-8128.00,-8128.00]
-
-      const xCoords2 = [14400.00,14448.00,14448.00,14432.00,14432.00,14448.00,14448.00,14496.00,14496.00,14576.00,14576.00,14592.00,14592.00,14496.00,14496.00,14480.00,14480.00,14416.00,14416.00,14400.00]
-      const yCoords2 = [-8416.00,-8416.00,-8432.00,-8432.00,-8448.00,-8448.00,-8464.00,-8464.00,-8480.00,-8480.00,-8464.00,-8464.00,-8384.00,-8384.00,-8368.00,-8368.00,-8384.00,-8384.00,-8400.00,-8400.00]
-
-      const coords = xCoords.map((x, index) => [x, -yCoords[index]-64]) 
-      const coords2 = xCoords2.map((x, index) => [x, -yCoords2[index]-64]) 
-      
-*/
+    
       var emcmap = L.map("map", {
         crs: L.CRS.Simple,
       }).setView([0, 0], -3);
 
 
-/*var FeatureCollection =   { "type": "FeatureCollection",
-    "features": [
-      {
-        "type": "Feature",
-       "properties": {"color": "#FFBB00", "fillColor":"#FFBB00"},
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [coords]
-          },
-      },
-      { 
-        "type": "Feature",
-        "properties": {"color": "#3FB4FF", "fillColor":"#3FB4FF"},
-         "geometry": {
-           "type": "Polygon",
-           "coordinates": [coords2]
-         },
-      }
-       ]
-     }
-*/
     const geoJsonFeatures = []
 async function FetchMap(){
-  const response = await fetch("https://earthmc.net/map/nova/standalone/MySQL_markers.php?marker=_markers_/marker_earth.json")
+  const response = await fetch("../assets/markers_earth.json")
 if(response.status !== 200){ 
   return console.log("Error: status code" + response.status)
   
@@ -90,26 +64,129 @@ console.log(data)
 
     const feature = {
         "type": "Feature",
-       "properties": {"color": area.color, "fillColor":area.fillcolor},
+       "properties": {"name":area.desc,"color": area.color, "fillColor":area.fillcolor, "show_on_map": true},
         "geometry": {
           "type": "Polygon",
-          "coordinates": [coords]
+          "coordinates": [coords],
+          
           },
       }
       geoJsonFeatures.push(feature)
   }
 }
+let geoJsonLayer
+function onEachFeatur(feature, layer) {
+        if (feature.properties && feature.properties.name) {
+            layer.bindPopup(feature.properties.name);
+        }
+    }
 FetchMap().then(( ) => {
   console.log(geoJsonFeatures)
-
+  
 var FeatureCollection =   { "type": "FeatureCollection", "features": geoJsonFeatures }
   console.log(FeatureCollection)
-L.geoJson(FeatureCollection, { style: function(feature){
-  return {color: feature.properties.color, fillColor:feature.properties.color, opacity:0.65, weight:1}
-}}).addTo(emcmap)
-      
+geoJsonLayer = L.geoJson(FeatureCollection, { style: function(feature){ return {color: feature.properties.color, fillColor:feature.properties.fillColor, opacity:0.65, weight:1 } }, filter: function(feature, layer){return feature.properties.show_on_map}, onEachFeature: onEachFeatur }).addTo(emcmap)
+
+})
+$("#Toggle").click(function(){
+  geoJsonFeatures.forEach(feature => {
+          if(feature.properties.show_on_map == true){
+            feature.properties.show_on_map = false;
+          }else feature.properties.show_on_map = true
+        });
+
+       
+        emcmap.removeLayer(geoJsonLayer);
+        var FeatureCollection =   { "type": "FeatureCollection", "features": geoJsonFeatures }
+        
+        geoJsonLayer = L.geoJson(FeatureCollection, {
+            style: function(feature) {
+                return {
+                    color: feature.properties.color,
+                    fillColor: feature.properties.fillColor,
+                    opacity: 0.65,
+                    weight: 1
+                };
+            },
+            filter: function(feature, layer) {
+                return feature.properties.show_on_map;
+            },
+            onEachFeature: onEachFeatur
+        }).addTo(emcmap);
+  }); 
+
+let IRLlayer
+  const IRLCountries = []
+async function FetchIRL(){
+  const response = await fetch("https://earthmc.net/map/nova/standalone/MySQL_markers.php?marker=_markers_/marker_earth.json")
+if(response.status !== 200){ 
+  return console.log("Error: status code" + response.status)
+  
+}
+const data = await response.json()
+console.log(data)
+  const lines = data.sets['borders.Country Borders'].lines
+
+  for (const linesID in lines){
+    const line = lines[linesID]
+    const coords = line.x.map((x, index) => [x, -line.z[index]-64]) 
+
+    const feature = {
+      type: "Feature",
+            properties: {
+                show_on_map: false
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: coords,
+            }
+    }
+      IRLCountries.push(feature)
+  }
+}
+
+FetchIRL().then(( ) => {
+  
+ 
+  var IRLCountriesCollection =   { "type": "FeatureCollection", "features": IRLCountries }
+  console.log(IRLCountriesCollection)
+IRLlayer = L.geoJson(IRLCountriesCollection, {
+            style: {
+    "color": "#000000",
+    "weight": 4,
+    "opacity": 0.5,
+},
+            filter: function(feature, layer) {
+                return feature.properties.show_on_map;
+            },
+            
+        }).addTo(emcmap)
 })
 
+ 
+$("#IRLtoggle").click(function(){
+  IRLCountries.forEach(feature => {
+          if(feature.properties.show_on_map == true){
+            feature.properties.show_on_map = false;
+          }else feature.properties.show_on_map = true
+        });
+
+        
+        emcmap.removeLayer(IRLlayer);
+        var FeatureCollection =   { "type": "FeatureCollection", "features": IRLCountries }
+        
+        IRLlayer = L.geoJson(FeatureCollection, {
+            style: {
+    "color": "#000000",
+    "weight": 4,
+    "opacity": 0.5,
+},
+            filter: function(feature, layer) {
+                return feature.properties.show_on_map;
+            },
+            
+        }).addTo(emcmap);
+  }); 
 
       
 
@@ -162,6 +239,6 @@ L.geoJson(FeatureCollection, { style: function(feature){
         tileSize: 128,
       }).addTo(emcmap);
     </script>
-    <script type="text/javascript" src="js/main.js"></script>
+    
   </body>
 </html>
