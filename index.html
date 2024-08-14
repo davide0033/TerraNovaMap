@@ -30,6 +30,9 @@
       type="text/javascript"
       src="https://code.jquery.com/jquery-latest.js"
     ></script>
+
+    <link rel="icon" type="image/x-icon" href="assets/logo.ico">
+
     <title>EMC Terra Nova map replacement</title>
   </head>
   <body>
@@ -209,7 +212,7 @@ $("#IRLtoggle").click(function(){
         }
       ).addTo(emcmap);
       L.tileLayer(
-        "./assets/Tiles/zzz_nova/x3}_{y3}.webp",
+        "./assets/Tiles/zzz_nova/{x3}_{y3}.webp",
         {
           maxZoom: -2,
           minZoom: -2,
