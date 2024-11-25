@@ -45,9 +45,23 @@
     </div>
     <script>
     
+      function getCoordinatesFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const y = parseFloat(params.get("y"));
+    const x = parseFloat(params.get("x"));
+    const zoom = parseInt(params.get("zoom"), 10);
+
+    if (!isNaN(y) && !isNaN(x) && !isNaN(zoom)) {
+        return { y, x, zoom };
+    }
+
+    // Default fallback coordinates and zoom level
+    return { y: 0, x: 0, zoom: -3 };
+}
+    const { y, x, zoom } = getCoordinatesFromURL();
       var emcmap = L.map("map", {
         crs: L.CRS.Simple,
-      }).setView([0, 0], -3);
+      }).setView([y, x], zoom);
 
 
     const geoJsonFeatures = []
