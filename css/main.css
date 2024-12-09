@@ -3,16 +3,80 @@ body {
   margin: 0;
   background-color: rgb(52, 48, 48);
 }
+
+.hamburger {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+
+
+
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #f0f0f0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 8000;
+}
+
+.menu.active {
+  transform: translateX(0); 
+}
+
+.menu * {
+  margin: 10px 0;
+  padding: 3px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 30px;
+  font-size: 10pt;
+}
+
+option{
+  color: black;
+}
 #map {
   position: relative;
   height: 100%;
   width: 100vw;
   background-color: rgb(50, 49, 47);
 }
+#controls{
+  position: fixed;
+    top: 100px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #cac9c983;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+    min-width: 275px
+}
 
-#Toggle {
-  position: absolute;
-  margin-top: 100px;
+.controls{
+  margin: 10px 0;
+  padding: 3px;
   clear: left;
   height: auto;
   width: auto;
@@ -21,22 +85,28 @@ body {
   background-color: #ffffff;
   border: #ffffff;
   border-radius: 5px;
-  font-size: 15pt;
+  font-size: 12pt;
+  height: fit-content;
+  cursor: pointer;
+  pointer-events: auto;
+}
+/*
+#Toggle {
+ 
+  margin-top: 100px;
+ 
 }
 #IRLtoggle {
-  position: absolute;
-  margin-top: 150px;
-  clear: left;
-  height: auto;
-  width: auto;
-  z-index: 800;
-  text-align: center;
-  background-color: #ffffff;
-  border: #ffffff;
-  border-radius: 5px;
-  font-size: 15pt;
+  
+  margin-top: 130px;
+  
 }
-
+#coords {
+  
+  margin-top: 160px;
+  
+}
+*/
 #status {
   position: fixed;
   padding: 6px;

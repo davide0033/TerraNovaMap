@@ -1,3 +1,4 @@
+
 <html>
   <head>
     <meta
@@ -32,7 +33,7 @@
     ></script>
 
     <link rel="icon" type="image/x-icon" href="assets/logo.ico">
-
+    
     <title>EMC Terra Nova map replacement</title>
   </head>
   <body>
@@ -40,12 +41,115 @@
     
     
     <div id="map">
-      <button id="Toggle" class="Toggle">Toggle Towny borders</button>
-      <button id="IRLtoggle" class="Toggle">Toggle countries borders</button>
+      <div id="controls">
+      <button id="Toggle" class="Controls">Toggle Towny borders</button>
+      <button id="IRLtoggle" class="Controls">Toggle countries borders</button>
+      <div id="coords" class="Controls" hidden></div>
+      <button class="Controls" id="hamburger" onclick="if(!document.getElementById('menu').classList.contains('active')) {document.getElementById('menu').classList.add('active')}else{document.getElementById('menu').classList.remove('active')};">advanced features (Beta)
+
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
-    <script>
+
+
+
+      
+    </div>
     
-      function getCoordinatesFromURL() {
+
+  <!-- Sidebar Menu -->
+  <div class="menu" id="menu">
+      
+      <button style="height: fit-content;"> Funny button (i'm not a front-end developer)</button>
+      <div style="height: 70px;">Type what you want to seach!
+        <div style="flex-direction: row; top: 0; background-color: transparent; margin-top: 0;";>
+          <input type="text" id="search" placeholder="Type what to search" style="width: 60%; margin-right: 5px;"></textarea>
+          <select name="SeachSelect" id="SeachSelect" style="width: 35%;">
+            <option value="town">Town</option>
+            <option value="nation">Nation</option>
+          </select>
+      </div>
+      </div>
+      
+      
+
+      </div>
+      
+
+
+      </div>
+
+
+    </div>
+    <script src="./js/advanced.js"></script>
+    <script>
+
+let alliances = null
+
+ getAlliances().then(result => alliances = result)
+
+ const htmlCode = {
+	playerLookup: '<div class="leaflet-control-layers leaflet-control left-container" id="player-lookup"></div>',
+	partOfLabel: '<span id="part-of-label">Part of <b>{allianceList}</b></span>',
+	residentClickable: '<span class="resident-clickable" onclick="lookupPlayer(\'{player}\')">{player}</span>',
+	residentList: '<span class="resident-list">\t{list}</span>',
+	scrollableResidentList: '<div class="resident-list" id="scrollable-list">\t{list}</div>',
+	playerLookupLoading: '<div class="leaflet-control-layers leaflet-control left-container" id="player-lookup-loading">Loading...</button>',
+	alertBox: '<div id="alert"><p id="alert-message">{message}</p><br><button id="alert-close">OK</button></div>',
+	message: '<div class="message" id="alert"><p id="alert-message">{message}</p></div>'
+}
+  
+function getNation(desc) {
+	const nationWikiRegex = /(?<=nofollow">)[^<]+(?=<\/a>\))/;
+	const nationRegex = /(?<=\()[^)]*/;
+	if (desc.includes('(<a ')) return desc.match(nationWikiRegex)[0];
+	else return desc.match(nationRegex)[0];
+}
+
+async function getAlliances() {
+	const response = await fetch('./assets/alliances.json')
+  const alliances = await response.json()
+	if (!alliances) {
+		const cache = JSON.parse(localStorage.getItem('alliances'))
+		if (cache == null) {
+			sendAlert('Service responsible for loading alliances will be available later.')
+			return []
+		}
+		sendAlert('Service responsible for loading alliances is currently unavailable, but locally-cached data will be used.')
+		return cache
+	}
+
+	const finalArray = []
+	for (const alliance of alliances) {
+    
+		let allianceType = alliance?.type?.toLowerCase() || 'mega'
+		if (allianceType == 'sub') continue
+		finalArray.push({
+			name: alliance.fullName || alliance.allianceName,
+			type: allianceType == 'mega' ? 'meganations' : 'alliances',
+			nations: alliance.nations,
+			colours: alliance.colours || { fill: '#000000', outline: '#000000' } // Black
+		})
+	}
+
+	localStorage['alliances'] = JSON.stringify(finalArray)
+	return finalArray
+  
+}
+
+function getNationAlliances(nation) {
+	const nationAlliances = []
+	if (alliances == null) return nationAlliances
+	for (const alliance of alliances) {
+		if (!alliance.nations.includes(nation)) continue
+		
+		nationAlliances.push({name: alliance.name, colours: alliance.colours})
+	}
+	return nationAlliances
+}
+
+    function getCoordinatesFromURL() {
     const params = new URLSearchParams(window.location.search);
     const y = parseFloat(params.get("y"));
     const x = parseFloat(params.get("x"));
@@ -62,7 +166,14 @@
       var emcmap = L.map("map", {
         crs: L.CRS.Simple,
       }).setView([y, x], zoom);
+      
+const coordDisplayDiv = document.getElementById("coords");
 
+
+emcmap.on("mousemove", function (event) {
+    const { lat, lng } = event.latlng;
+    coordDisplayDiv.innerHTML = `Coordinates: X: ${lng.toFixed(2)}, Y: ${lat.toFixed(2)}`;
+});
 
     const geoJsonFeatures = []
 async function FetchMap(){
@@ -76,12 +187,29 @@ console.log(data)
   const areas = data.sets['townyPlugin.markerset'].areas
 
   for (const areaID in areas){
+    
+    
+  
     const area = areas[areaID]
     const coords = area.x.map((x, index) => [x, -area.z[index]-64]) 
+    let desc 
+    var split = area.desc.split("Members <span style=\"font-weight:bold\">")
+    const nationAlliances = getNationAlliances(getNation(area.desc))
+    const RF = split[1].split("</span><br />Flags<br /><span style=\"font-weight:bold\">")
+    console.log(RF)
+	const reslist = " <div style=\"font-weight:bold; max-height:175px; overflow-y:auto; margin-top=100px;\" <br />"+"<span style=\"font-weight:normal\"> Members["  + RF[0].split(", ").length + "]</span> <span style=\"font-weight:bold\">  " + RF[0] + " </span> </div> " + "</span>Flags<br><span style=\"font-weight:bold\">" + RF[1]
+    if (nationAlliances.length > 0) {
+		const allianceList = nationAlliances.map(alliance => alliance.name).join(', ')
+		
+		desc = split[0] + "Alliances  <span style=\"font-weight:bold\"> " + allianceList + " </span> <br /> " + reslist
+    
+	} else {
+    desc = area.desc
+  }
 
     const feature = {
         "type": "Feature",
-       "properties": {"name":area.desc,"color": area.color, "fillColor":area.fillcolor, "show_on_map": true},
+       "properties": {"name":desc,"color": area.color, "fillColor":area.fillcolor, "show_on_map": true},
         "geometry": {
           "type": "Polygon",
           "coordinates": [coords],
@@ -89,6 +217,7 @@ console.log(data)
           },
       }
       geoJsonFeatures.push(feature)
+      
   }
 }
 let geoJsonLayer
@@ -256,6 +385,6 @@ $("#IRLtoggle").click(function(){
         tileSize: 128,
       }).addTo(emcmap);
     </script>
-    
+    <script src="./js/advanced.js"></script>
   </body>
 </html>
