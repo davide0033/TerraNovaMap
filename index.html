@@ -151,7 +151,7 @@ function getNationAlliances(nation) {
 
     function getCoordinatesFromURL() {
     const params = new URLSearchParams(window.location.search);
-    const y = parseFloat(params.get("y"));
+    const y = parseFloat(params.get("z"));
     const x = parseFloat(params.get("x"));
     const zoom = parseInt(params.get("zoom"), 10);
 
@@ -172,7 +172,7 @@ const coordDisplayDiv = document.getElementById("coords");
 
 emcmap.on("mousemove", function (event) {
     const { lat, lng } = event.latlng;
-    coordDisplayDiv.innerHTML = `Coordinates: X: ${lng.toFixed(2)}, Y: ${lat.toFixed(2)}`;
+    coordDisplayDiv.innerHTML = `Coordinates: X: ${lng.toFixed(2)}, Z: ${-lat.toFixed(2)}`;
 });
 
     const geoJsonFeatures = []
