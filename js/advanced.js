@@ -34,7 +34,7 @@ Snput.addEventListener("keydown", async (event) => {
 	if (town) {
 		const avgX = (Math.min(...town.x) + Math.max(...town.x)) / 2;
 		const avgZ = (Math.min(...town.z) + Math.max(...town.z)) / 2;
-		location.href = `./?y=${-avgZ}&x=${avgX}&zoom=-6`;
+		location.href = `./?z=${avgZ}&x=${avgX}&zoom=-6`;
 		return;
 	}
         } 
